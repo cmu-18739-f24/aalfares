@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Ḿ̸̟a̸͚̕r̷̛͈k̶̡̑d̴̩͊o̸͖̎w̵̠̆n̵̗͒ ̵̟̈3̵̛̹0̴͎̉3̴̦̏0̴̗̿ </title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.0/purify.min.js" 
+            integrity="sha512-AFNgsjnDsfr0u42G9O1u+r+XewdzK7zUIgenHJ4ZbklTMzFgHZ81xmtNSkbDt/SARHrTwfCP1Vec9T7fr7WrMA==" 
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.0/marked.min.js" 
+            integrity="sha512-/tpw1ej/DTEJDoX8qZM1YY8H9bz2+2T9nhojBmizu9JDVNvjXvgA3zfRjVF96V3bwK6Uf3eIqrYKIKRZx203iA==" 
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <style>
+            html {
+                margin: 0;
+                padding: 0;
+                font-family: <%= font %>;
+                color: <%= textColor %>;
+                background-color: <%= backgroundColor %>;
+                height: 100vh;
+                overflow: auto;
+                font-size: <%= fontSize %>;
+            }
+
+            body {
+                padding: 2rem;
+                margin: 0;
+            }
+
+            footer {
+                padding: 0.25rem;
+                margin: 0;
+                margin-top: 0.25rem;
+                text-align: center;
+                height: 2vh;
+            }
+
+            textarea {
+                background-color: <%= backgroundColor %>;
+                font-family: <%= textAreaFont %>;
+                color: <%= textColor %>;
+                resize: none;
+            }
+
+            .settings {
+                height: 30vh;
+            }
+
+            .containers {
+                display: flex;
+                gap: 0.25rem;
+                height: 50vh;
+            }
+
+            .container {
+                flex-basis: 50%;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                box-sizing: border-box;
+            }
+
+            .pane {
+                margin-top: 5px;
+                padding: 0.6em;
+                border: 1px solid #ccc;
+                overflow: auto;
+                flex-grow: 1;
+                flex-shrink: 1;
+            }
+
+            #preview {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .error {
+                border-color: red;
+                background-color: red;
+                color: white;
+            }
+
+            .blackout {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background-color: black;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s ease;
+                z-index: 10000;
+            }
+
+            button {
+                margin-top: 0.5rem;
+            }
+
+            .flicker {
+                animation: flicker 1s ease-in-out forwards;
+            }
+
+            @keyframes flicker {
+                0%, 100% {
+                    opacity: 0;
+                }
+                30% {
+                    opacity: 0.4;
+                }
+                50% {
+                    opacity: 1;
+                }
+                80% {
+                    opacity: 0.4;
+                }
+            }
+        </style>
+        <script>
+            setInterval(() => {
+                const flicker = document.body;
+                flicker.classList.add('flicker');
+                setTimeout(() => {
+                    flicker.classList.remove('flicker');
+                }, 1000);
+            }, 20000);
+        </script>
+    </head>
+
+    <body>
+        <header>
+            <h1>Ḿ̸̟a̸͚̕r̷̛͈k̶̡̑d̴̩͊o̸͖̎w̵̠̆n̵̗͒ ̵̟̈3̵̛̹0̴͎̉3̴̦̏0̴̗̿ </h1>
+            <h3><i>In a world polluted by Del the Funkee Homosapien's v̸i̷r̶u̶s̸, one editor endures.</i></h3>
+            <noscript>
+                <h2 class="error">WARNING: Enable Javascript to use this tool.</h2>
+            </noscript>
+            <% if (errorMsg) { %>
+                <h2 class="error">
+                    <%= errorMsg %>
+                </h2>
+            <% } %>
+        </header>
+        <div class="containers">
+            <div class="container">
+                <div class="label">
+                    <b>Input</b>
+                </div>
+                <textarea id="input" class="pane"></textarea>
+            </div>
+            <div class="container">
+                <div class="label">
+                    <b>Preview</b>
+                </div>
+                <div id="preview" class="pane">
+                </div>
+            </div>
+        </div>
+        <div class="containers" style="flex-direction: column; margin-top: 0.5rem; height: 20vh;">
+            <div class="label">
+                <b>S̷e̷t̷t̶i̸n̸g̸s̶</b>
+            </div>
+            <form action="/" method="POST" style="height: 90%; display: flex; flex-direction: column;">
+            <textarea id="settings" name="settingsData" class="pane" style="height: 90%;"><%= settingsText %></textarea>
+            <button type="submit" style="height: 10%;">Change Settings</button>
+            </form>
+        </div>
+        <footer>
+            <p><b>Maintained by:</b> Dan the Automator (Adapted from <a href="https://marked.js.org/demo/">Marked Demo</a>)</p>
+        </footer>
+        <script>
+            const text = new URLSearchParams(window.location.search).get('text');
+            const md_input = document.getElementById('input');
+            const md_preview = document.getElementById('preview');
+
+            function preview(e) {
+                md_preview.innerHTML = DOMPurify.sanitize(
+                    marked.parse(e.target.value), 
+                    { 
+                        FORBID_TAGS: ['math', 'svg', 'style'], 
+                        SAFE_URL_REGEXP: /^(https?|mailto):/i
+                    }
+                );
+            }
+
+            md_input.oninput = preview;
+            md_input.onchange = preview;
+            
+            if (text === null) {
+                fetch('./initial.md')
+                    .then(res => res.text())
+                    .then(init_content => {
+                        md_input.value = init_content;
+                    });
+            } else {
+                md_input.value = text;
+            }
+
+            setTimeout(() => {
+                md_input.dispatchEvent(new Event('input'));
+            }, 500);
+        </script>
+    </body>
+</html>
