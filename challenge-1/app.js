@@ -1,11 +1,11 @@
 const express = require('express');
-const bodyParser = require('body-parser'); 
 const { exec } = require('child_process');
 const app = express();
 const port = 3000;
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 const defaultSettings = {
     backgroundColor: "#222",
@@ -68,7 +68,16 @@ app.post('/', function (req, res) {
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
 
     // process user setting changes
-    const settingsData = req.body.settingsData; 
+    const settingsData = req.body.settingsData;
+
+    if (settingsData === null || settingsData === undefined) {
+        res.render('index', merge({ 
+            settingsText: JSON.stringify(defaultSettings, null, 2),
+            errorMsg: 'Invalid request.' 
+        }, defaultSettings));
+        return;
+    }
+    
     let settings;
 
     try {
