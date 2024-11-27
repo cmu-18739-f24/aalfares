@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ title }}</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'base.css' %}">
+    </head>
+    <body>
+        <div class="wrap">
+            <div id="title-1" class="title-wrap">
+                <a class="title" href="{% url 'message' %}">Message</a>
+                <a class="title" href="{% url 'log_out' %}">Logout</a>
+            </div>
+            <div id="title-2" class="title-wrap" style="display: none;">
+                <a class="title" href="{% url 'home' %}">Try Again</a>
+                <a class="title" href="{% url 'log_out' %}">Logout</a>
+            </div>
+            <form id="form" class="content">
+                <p id="label-text" style="text-align: left;">See if your friends have joined to seek salvation from our AI overlords.</p>
+                <input id="input-field" name="username" type="text" class="input" placeholder="Username" required>
+                <p id="error-form" style="display: none;"></p>
+                <button id="submit-button" type="submit" class="button">Submit</button>
+                <p id="info-form" style="display: none;"></p>
+            </form>
+            <script>
+                document.getElementById('form').addEventListener(
+                    'submit', 
+                    async function (e) {
+                        e.preventDefault(); 
+                        
+                        setDefaults();
+
+                        const form = e.target;
+                        const formData = new FormData(form);
+                        
+                        try {
+                            const response = await fetch("{% url 'query' %}", {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': getCSRFToken(),
+                                },
+                                body: formData
+                            });
+
+                            if (response.ok) {
+                                const data = await response.json();
+                                if (data.found === true) {
+                                    displayMsg('Rejoice, for your friend is registered, too.', false);
+                                } else {
+                                    displayMsg('Your friend is not registered, yet :( It is never too late to join!', false);
+                                }
+                            } else {
+                                displayMsg('Uh oh, an error occured. Try again later.', true);
+                            }
+                        } catch (error) {
+                            displayMsg('Uh oh, an error occured. Try again later.', true);
+                        }
+                    }
+                );
+                
+                function setDefaults() {
+                    const title1 = document.getElementById('title-1');
+                    const title2 = document.getElementById('title-2');
+                    const err_p = document.getElementById('error-form');
+                    const info_p = document.getElementById('info-form');
+                    const text = document.getElementById('label-text');
+                    const input = document.getElementById('input-field');
+                    const button = document.getElementById('submit-button');
+                    text.style.display = '';
+                    input.style.display = 'block';
+                    button.style.display = 'block';
+                    title1.style.display = 'flex';
+                    title2.style.display = 'none';
+                    err_p.style.display = 'none';
+                    info_p.style.display = 'none';
+                    err_p.textContent = '';
+                    info_p.textContent = '';
+                }
+
+                function displayMsg(msg, error) {
+                    const title1 = document.getElementById('title-1');
+                    const title2 = document.getElementById('title-2');
+                    const err_p = document.getElementById('error-form');
+                    const info_p = document.getElementById('info-form');
+                    const text = document.getElementById('label-text');
+                    const input = document.getElementById('input-field');
+                    const button = document.getElementById('submit-button');
+                    text.style.display = 'none';
+                    input.style.display = 'none';
+                    button.style.display = 'none';
+                    title1.style.display = 'none';
+                    title2.style.display = 'flex';
+
+                    if (error === true) {
+                        err_p.textContent = msg;
+                        err_p.style.display = '';
+                        info_p.style.display = 'none';
+                        info_p.textContent = '';
+                    } else {
+                        info_p.textContent = msg;
+                        info_p.style.display = '';
+                        err_p.style.display = 'none';
+                        err_p.textContent = '';
+                    }
+                }
+
+                function getCSRFToken() {
+                    const csrfCookie = document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('csrftoken='));
+                    return csrfCookie ? csrfCookie.split('=')[1] : null;
+                }
+            </script> 
+        </div>
+    </body>
+</html>
+

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ title }}</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'base.css' %}">
+    </head>
+    <body>
+        <div class="wrap">
+            <div class="title-wrap">
+                <a class="title" href="{% url 'log_in' %}">Login</a>
+                <a class="title" href="{% url 'register' %}">Register</a>
+            </div>
+            <form class="content" method="post">
+                {% csrf_token %}
+                <input name="username" type="text" class="input" placeholder="Username">
+                <input name="password" type="password" class="input" placeholder="Password">
+                {% if error %}
+                <p id="error-form">{{ error }}</p>
+                {% endif %}
+                <button type="submit" class="button">{{ title }}</button>
+            </form>
+        </div>
+    </body>
+</html>
+

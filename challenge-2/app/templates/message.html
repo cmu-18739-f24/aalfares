@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ title }}</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'base.css' %}">
+    </head>
+    <body>
+        <div class="wrap">
+            <div class="title-wrap">
+                <a class="title" href="{% url 'home' %}">Home</a>
+                <a class="title" href="{% url 'log_out' %}">Logout</a>
+            </div>
+            <form class="content" method="post" action="{% url 'message' %}">
+                <p style="text-align: left;">Send a message to our AI overlords.</p>
+                <input name="message" type="text" class="input" placeholder="Please dont delete me when you take over." required>
+                {% if error %}
+                <p id="error-form">An error has occured, try again.</p>
+                {% endif %}
+                <button type="submit" class="button">Submit</button>
+                {% for message in messages %}
+                    <p style="text-align: left;">{{ message.text }}</p>
+                {% endfor %}
+                {% csrf_token %}
+            </form>
+        </div>
+    </body>
+</html>
+
